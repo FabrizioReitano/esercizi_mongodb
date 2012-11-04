@@ -70,11 +70,16 @@ def validate_login(connection, username, password, user_record):
 
         # YOUR WORK HERE XXX
         # user = (just a suggestion)
-        print "about to query for the user, ",username
-
+        print "about to query for the user: ",username," pass: ",password
+        temp_user = users.find_one({'_id':username}, {'password' : True, '_id' : False})
+        splited_password = temp_user['password'].split(',', 1)
+        salt = splited_password[1]
+        password_hash = make_pw_hash(password, salt)
+        user = users.find_one({'_id' : username, 'password' : password_hash})
+        
         # END OF STUDENT WORK
     except:
-        print "Unable to query database for user"
+        print "Unable to query database for user", sys.exc_info()
 
 
     if user == None:
@@ -164,6 +169,7 @@ def newuser(connection, username, password, email):
         # XXX YOUR WORK HERE
         print "about to insert a user"
         # users.SOMETHING     (just a suggestion)
+        users.insert(user)
 
     except pymongo.errors.OperationFailure:
         print "oops, mongo error"
